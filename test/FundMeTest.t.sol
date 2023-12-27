@@ -7,9 +7,15 @@ import { DeployFundMe } from "../script/DeployFundMe.s.sol";
 
 contract FundMeTest is Test {
   FundMe fundMe;
+
+  address USER = makeAddr("user");
+  uint256 SEND_VALUE = 0.1 ether;
+  uint256 STARTING_BALANCE = 10 ether;
+
   function setUp() external {
     DeployFundMe deployFundMe = new DeployFundMe();
     fundMe = deployFundMe.run();
+    vm.deal(USER, STARTING_BALANCE);
   }
 
   function testMinimumDollarIsFive() public {
@@ -30,9 +36,10 @@ contract FundMeTest is Test {
   }
 
   function testFundUpdatesFundedDataStructure () public {
-    fundMe.fund{value: 10e18}();
-    
-    uint256 amountFunded = fundMe.getAddressToAmountFunded(msg.sender);
-    assertEq(amountFunded, 10e18);
+    vm.prank(USER);
+    fundMe.fund{value: SEND_VALUE}();
+
+    uint256 amountFunded = fundMe.getAddressToAmountFunded(USER);
+    assertEq(amountFunded, SEND_VALUE);
   }
 }
